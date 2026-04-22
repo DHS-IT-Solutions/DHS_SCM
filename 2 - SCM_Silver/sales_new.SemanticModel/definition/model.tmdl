@@ -18,7 +18,7 @@ ref table 'analytics current_stock'
 ref table 'Inventory Age Bucket'
 ref table 'analytics purchasing_document'
 ref table 'Date Table'
-ref table DateTableTemplate_89c6befd-601f-45b4-8442-b847872ef2c7
+ref table DateTableTemplate_e91b9fcf-a25c-467d-b09f-00444b571fed
 ref table LocalDateTable_a0812149-9514-44c3-8d8b-01ddb2fdc980
 
 ref cultureInfo en-US

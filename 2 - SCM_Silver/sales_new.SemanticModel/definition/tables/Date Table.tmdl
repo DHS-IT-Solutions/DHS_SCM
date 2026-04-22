@@ -10,7 +10,7 @@ table 'Date Table'
 
 		variation Variation
 			isDefault
-			relationship: d2d4dd47-ac71-4172-8595-eedeac7d77ab
+			relationship: a9badab7-7da6-416d-9c79-b7fbb795324c
 			defaultHierarchy: LocalDateTable_a0812149-9514-44c3-8d8b-01ddb2fdc980.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
@@ -52,7 +52,7 @@ table 'Date Table'
 		annotation SummarizationSetBy = Automatic
 
 	column 'Month Year'
-		lineageTag: bb826c08-1381-49a9-ae81-efea8fd22261
+		lineageTag: 32f20896-2d6c-4fd0-9ab0-5990af249da5
 		summarizeBy: none
 		isNameInferred
 		sourceColumn: [Month Year]
@@ -64,7 +64,10 @@ table 'Date Table'
 		source =
 				
 				ADDCOLUMNS(
-				    CALENDAR(DATE(2024,1,1), DATE(2025,12,31)),
+				    CALENDAR(
+				        DATEVALUE(MIN('analytics purchasing_document'[GR_date])),
+				        DATEVALUE(MAX('analytics purchasing_document'[GR_date]))
+				    ),
 				    "Year", YEAR([Date]),
 				    "MonthNo", MONTH([Date]),
 				    "Month", FORMAT([Date], "MMM"),

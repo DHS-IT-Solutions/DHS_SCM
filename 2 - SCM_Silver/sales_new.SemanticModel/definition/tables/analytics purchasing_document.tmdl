@@ -10,7 +10,69 @@ table 'analytics purchasing_document'
 		formatString: 0
 		lineageTag: a59cfbcc-8d08-4e09-b8d0-2edbcec1177c
 
-	measure 'On-Time Lines' =
+	measure 'Avg Lead Time (Days)' =
+			
+			AVERAGEX(
+			    FILTER(
+			        'analytics purchasing_document',
+			        NOT(ISBLANK('analytics purchasing_document'[Created_on] )) &&
+			        NOT(ISBLANK('analytics purchasing_document'[GR_date]))
+			    ),
+			    DATEDIFF(
+			        'analytics purchasing_document'[Created_on],
+			        'analytics purchasing_document'[GR_date],
+			        DAY
+			    )
+			)
+		formatString: 0
+		lineageTag: 1892e2df-e960-4512-93f5-8513f81d74c2
+
+	measure 'Avg Lead Time (Days) Last Month' =
+			
+			VAR LatestGRDate =
+			    CALCULATE(
+			        MAX('analytics purchasing_document'[GR_date]),
+			        ALL('analytics purchasing_document')
+			    )
+			VAR CurrentMonthStart =
+			    DATE(YEAR(LatestGRDate), MONTH(LatestGRDate), 1)
+			VAR LastMonthStart =
+			    EDATE(CurrentMonthStart, -1)
+			RETURN
+			COALESCE(
+			    AVERAGEX(
+			        FILTER(
+			            ALL('analytics purchasing_document'),
+			            NOT(ISBLANK('analytics purchasing_document'[Created_on])) &&
+			            NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
+			            'analytics purchasing_document'[GR_date] >= LastMonthStart &&
+			            'analytics purchasing_document'[GR_date] <  CurrentMonthStart
+			        ),
+			        DATEDIFF(
+			            'analytics purchasing_document'[Created_on],
+			            'analytics purchasing_document'[GR_date],
+			            DAY
+			        )
+			    ),
+			    0
+			)
+		formatString: 0
+		lineageTag: bb5f1996-9b00-4f9f-8101-e4446cbf6a8b
+
+	measure 'Total Deliveries' =
+			
+			CALCULATE(
+			    COUNTROWS('analytics purchasing_document'),
+			    FILTER(
+			        'analytics purchasing_document',
+			        NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
+			        NOT(ISBLANK('analytics purchasing_document'[Delivery_Date]))
+			    )
+			)
+		formatString: 0
+		lineageTag: cc5b9068-c8a3-46b4-bd48-547b5cac4164
+
+	measure 'On-Time Deliveries' =
 			
 			CALCULATE(
 			    COUNTROWS('analytics purchasing_document'),
@@ -18,38 +80,307 @@ table 'analytics purchasing_document'
 			        'analytics purchasing_document',
 			        NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
 			        NOT(ISBLANK('analytics purchasing_document'[Delivery_Date])) &&
-			        'analytics purchasing_document'[GR_date] <= 'analytics purchasing_document'[Delivery_Date]
+			        'analytics purchasing_document'[GR_date] <= 'analytics purchasing_document'[Delivery_Date] + 2
 			    )
 			)
 		formatString: 0
-		lineageTag: 5a0d7ff1-6ba8-49ba-be0b-f057d003eb21
+		lineageTag: 49b02d8a-927c-4d3e-bc3d-c6bbe1ebd7cd
 
-	measure 'On-Time Delivery %' =
+	measure 'OTD %' =
 			
-			DIVIDE([On-Time Lines], [Delivered Lines], 0)
-		lineageTag: 90a4aca3-0aa0-47b0-908f-9ae5d4b93752
+			DIVIDE([On-Time Deliveries], [Total Deliveries], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 944f0f29-2991-4698-ab4c-399e39ead4fc
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	measure 'On-Time Delivery % Last Month' =
+	measure 'OTD % Last Month' =
 			
-			COALESCE(
+			VAR LatestGRDate =
 			    CALCULATE(
-			        [On-Time Delivery %],
-			        PREVIOUSMONTH('Date Table'[Date])
+			        MAX('analytics purchasing_document'[GR_date]),
+			        ALL('analytics purchasing_document')
+			    )
+			VAR CurrentMonthStart =
+			    DATE(YEAR(LatestGRDate), MONTH(LatestGRDate), 1)
+			VAR LastMonthStart =
+			    EDATE(CurrentMonthStart, -1)
+			RETURN
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS('analytics purchasing_document'),
+			        FILTER(
+			            ALL('analytics purchasing_document'),
+			            NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
+			            NOT(ISBLANK('analytics purchasing_document'[Delivery_Date])) &&
+			            'analytics purchasing_document'[GR_date] >= LastMonthStart &&
+			            'analytics purchasing_document'[GR_date] < CurrentMonthStart &&
+			            'analytics purchasing_document'[GR_date] <= 'analytics purchasing_document'[Delivery_Date] + 2
+			        )
+			    ),
+			    CALCULATE(
+			        COUNTROWS('analytics purchasing_document'),
+			        FILTER(
+			            ALL('analytics purchasing_document'),
+			            NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
+			            NOT(ISBLANK('analytics purchasing_document'[Delivery_Date])) &&
+			            'analytics purchasing_document'[GR_date] >= LastMonthStart &&
+			            'analytics purchasing_document'[GR_date] < CurrentMonthStart
+			        )
 			    ),
 			    0
 			)
-		lineageTag: d8cc1cf6-5b98-47c1-839c-da62948dee95
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 76ed7673-ab35-4065-8c33-12605c996811
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	measure 'On-Time Delivery % Change' =
+	measure 'OTD % Current Month' = ```
 			
-			[On-Time Delivery %] - [On-Time Delivery % Last Month]
-		lineageTag: 1fc8c28a-ab62-4b40-8a16-3fe016ee6fd3
+			VAR LatestGRDate =
+			    CALCULATE(
+			        MAX('analytics purchasing_document'[GR_date]),
+			        ALL('analytics purchasing_document')
+			    )
+			VAR CurrentMonthStart =
+			    DATE(YEAR(LatestGRDate), MONTH(LatestGRDate), 1)
+			VAR NextMonthStart =
+			    EDATE(CurrentMonthStart, 1)
+			RETURN
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS('analytics purchasing_document'),
+			        FILTER(
+			            ALL('analytics purchasing_document'),
+			            NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
+			            NOT(ISBLANK('analytics purchasing_document'[Delivery_Date])) &&
+			            'analytics purchasing_document'[GR_date] >= CurrentMonthStart &&
+			            'analytics purchasing_document'[GR_date] < NextMonthStart &&
+			            'analytics purchasing_document'[GR_date] <= 
+			                'analytics purchasing_document'[Delivery_Date] + 2
+			        )
+			    ),
+			    CALCULATE(
+			        COUNTROWS('analytics purchasing_document'),
+			        FILTER(
+			            ALL('analytics purchasing_document'),
+			            NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
+			            NOT(ISBLANK('analytics purchasing_document'[Delivery_Date])) &&
+			            'analytics purchasing_document'[GR_date] >= CurrentMonthStart &&
+			            'analytics purchasing_document'[GR_date] < NextMonthStart
+			        )
+			    ),
+			    0
+			)
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 949e7f79-fafc-4169-8932-09aa17f322fc
+
+	measure 'Quantity Score %' =
+			
+			MIN(
+			    DIVIDE(
+			        SUM('analytics purchasing_document'[Delivered_quantity]),
+			        SUM('analytics purchasing_document'[Ordered]),
+			        0
+			    ),
+			    1
+			)
+		formatString: 0%;-0%;0%
+		lineageTag: 68b7d089-a288-4828-bdcf-e9b2eedcd1d4
+
+	measure 'Quantity Score % Current Month' =
+			
+			VAR LatestGRDate =
+			    CALCULATE(
+			        MAX('analytics purchasing_document'[GR_date]),
+			        ALL('analytics purchasing_document')
+			    )
+			VAR CurrentMonthStart =
+			    DATE(YEAR(LatestGRDate), MONTH(LatestGRDate), 1)
+			VAR NextMonthStart =
+			    EDATE(CurrentMonthStart, 1)
+			RETURN
+			MIN(
+			    DIVIDE(
+			        CALCULATE(
+			            SUM('analytics purchasing_document'[Delivered_quantity]),
+			            FILTER(
+			                ALL('analytics purchasing_document'),
+			                'analytics purchasing_document'[GR_date] >= CurrentMonthStart &&
+			                'analytics purchasing_document'[GR_date] < NextMonthStart
+			            )
+			        ),
+			        CALCULATE(
+			            SUM('analytics purchasing_document'[Ordered]),
+			            FILTER(
+			                ALL('analytics purchasing_document'),
+			                'analytics purchasing_document'[GR_date] >= CurrentMonthStart &&
+			                'analytics purchasing_document'[GR_date] < NextMonthStart
+			            )
+			        ),
+			        0
+			    ),
+			    1
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: e8106ffa-1b42-42ef-a498-f42ee18f10f1
+
+	measure 'Quantity Score % Last Month' =
+			
+			VAR LatestGRDate =
+			    CALCULATE(
+			        MAX('analytics purchasing_document'[GR_date]),
+			        ALL('analytics purchasing_document')
+			    )
+			VAR CurrentMonthStart =
+			    DATE(YEAR(LatestGRDate), MONTH(LatestGRDate), 1)
+			VAR LastMonthStart =
+			    EDATE(CurrentMonthStart, -1)
+			RETURN
+			MIN(
+			    DIVIDE(
+			        CALCULATE(
+			            SUM('analytics purchasing_document'[Delivered_quantity]),
+			            FILTER(
+			                ALL('analytics purchasing_document'),
+			                'analytics purchasing_document'[GR_date] >= LastMonthStart &&
+			                'analytics purchasing_document'[GR_date] < CurrentMonthStart
+			            )
+			        ),
+			        CALCULATE(
+			            SUM('analytics purchasing_document'[Ordered]),
+			            FILTER(
+			                ALL('analytics purchasing_document'),
+			                'analytics purchasing_document'[GR_date] >= LastMonthStart &&
+			                'analytics purchasing_document'[GR_date] < CurrentMonthStart
+			            )
+			        ),
+			        0
+			    ),
+			    1
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 1a18ea19-9609-4ed7-9f10-0ce181ffecb2
+
+	measure 'OTD Score' =
+			
+			[OTD % Current Month] * 100
+		lineageTag: 78749e0a-596b-4eb8-a2ce-bab76e526555
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Quantity Score' =
+			
+			[Quantity Score % Current Month] * 100
+		lineageTag: 68523b74-5d0a-4a3d-907a-7b95cac2e02f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Lead Time Score' =
+			
+			VAR CurrentLead = [Avg Lead Time (Days)]
+			VAR MaxLead =
+			    CALCULATE(
+			        MAXX(
+			            VALUES('analytics purchasing_document'[Vendor_Name]),
+			            [Avg Lead Time (Days)]
+			        ),
+			        ALL('analytics purchasing_document'[Vendor_Name])
+			    )
+			RETURN
+			IF(
+			    ISBLANK(CurrentLead),
+			    0,
+			    IF(
+			        MaxLead = 0,
+			        100,
+			        100 * (1 - DIVIDE(CurrentLead, MaxLead, 0))
+			    )
+			)
+		lineageTag: 0a8d9b26-5d81-4325-ba16-5158dc41c1c1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Price Variance %' =
+			
+			AVERAGEX(
+			    FILTER(
+			        ALL('analytics purchasing_document'),
+			        NOT(ISBLANK('analytics purchasing_document'[Net_Price])) &&
+			        NOT(ISBLANK('analytics purchasing_document'[Standard_price])) &&
+			        'analytics purchasing_document'[Standard_price] <> 0
+			    ),
+			    DIVIDE(
+			        'analytics purchasing_document'[Net_Price] - 'analytics purchasing_document'[Standard_price],
+			        'analytics purchasing_document'[Standard_price],
+			        0
+			    )
+			)
+		lineageTag: b6b6c7cc-42bf-4429-8a01-6a99a50d15c9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Price Score' =
+			
+			VAR VarPct = [Price Variance %]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    ISBLANK(VarPct), 0,
+			    VarPct <= 0, 100,
+			    VarPct >= 0.25, 0,
+			    100 * (1 - DIVIDE(VarPct, 0.25, 0))
+			)
+		lineageTag: 08d7b8b1-d179-4642-ad2d-d44d5e758263
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Vendor Score' =
+			
+			([OTD Score] * 0.30) +
+			([Lead Time Score] * 0.25) +
+			([Quantity Score] * 0.25) +
+			([Price Score] * 0.20)
+		formatString: 0
+		lineageTag: ba59defa-f8fc-4fee-8418-8b22745a250f
+
+	measure 'Vendor Score Current Month' =
+			
+			([OTD % Current Month] * 100 * 0.30) +
+			([Lead Time Score] * 0.25) +
+			([Quantity Score % Current Month] * 100 * 0.25) +
+			([Price Score] * 0.20)
+		formatString: 0
+		lineageTag: 194016bd-9958-4c78-98c4-627c2178db17
+
+	measure 'Avg Lead Time (Days) Current Month' =
+			
+			VAR LatestGRDate =
+			    CALCULATE(
+			        MAX('analytics purchasing_document'[GR_date]),
+			        ALL('analytics purchasing_document')
+			    )
+			VAR CurrentMonthStart =
+			    DATE(YEAR(LatestGRDate), MONTH(LatestGRDate), 1)
+			VAR NextMonthStart =
+			    EDATE(CurrentMonthStart, 1)
+			RETURN
+			COALESCE(
+			    AVERAGEX(
+			        FILTER(
+			            ALL('analytics purchasing_document'),
+			            NOT(ISBLANK('analytics purchasing_document'[Created_on])) &&
+			            NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
+			            'analytics purchasing_document'[GR_date] >= CurrentMonthStart &&
+			            'analytics purchasing_document'[GR_date] < NextMonthStart
+			        ),
+			        DATEDIFF(
+			            'analytics purchasing_document'[Created_on],
+			            'analytics purchasing_document'[GR_date],
+			            DAY
+			        )
+			    ),
+			    0
+			)
+		formatString: 0
+		lineageTag: 48dfe841-7d33-43ac-9ae9-7ec4747a328a
 
 	column 'Purch._Organization'
 		dataType: string
@@ -688,6 +1019,17 @@ table 'analytics purchasing_document'
 		sourceColumn: QuantityMismatch
 
 		annotation SummarizationSetBy = Automatic
+
+	column Delivered_quantity
+		dataType: double
+		sourceProviderType: decimal(15, 2)
+		lineageTag: 46785ffe-8043-46e6-b9fd-3579f54f1d29
+		summarizeBy: sum
+		sourceColumn: Delivered_quantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	partition 'analytics purchasing_document' = m
 		mode: directQuery

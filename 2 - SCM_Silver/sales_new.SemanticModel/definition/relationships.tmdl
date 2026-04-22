@@ -75,7 +75,7 @@ relationship 359367eb-ec1f-803b-0305-f521d6741874
 	fromColumn: 'analytics current_stock'.'Inventory Age Bucket'
 	toColumn: 'Inventory Age Bucket'.'Inventory Age Bucket'
 
-relationship d2d4dd47-ac71-4172-8595-eedeac7d77ab
+relationship a9badab7-7da6-416d-9c79-b7fbb795324c
 	joinOnDateBehavior: datePartOnly
 	fromColumn: 'Date Table'.Date
 	toColumn: LocalDateTable_a0812149-9514-44c3-8d8b-01ddb2fdc980.Date

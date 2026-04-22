@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
   "name": "231b4428ba5b6a1238d4",
   "position": {
-    "x": 336.78417884780742,
-    "y": 177.74720550300947,
-    "z": 23002,
-    "height": 24.557179707652622,
-    "width": 80.6878761822872,
-    "tabOrder": 23002
+    "x": 320.9646856158484,
+    "y": 178.05340223944876,
+    "z": 24000,
+    "height": 24.599483204134369,
+    "width": 100.74074074074075,
+    "tabOrder": 24000
   },
   "visual": {
     "visualType": "textbox",
@@ -55,7 +55,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Last Month'"
+                  "Value": "'Current Month'"
                 }
               }
             },

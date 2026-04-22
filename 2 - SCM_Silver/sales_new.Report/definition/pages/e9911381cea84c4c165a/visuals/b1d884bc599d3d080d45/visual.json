@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
   "name": "b1d884bc599d3d080d45",
   "position": {
     "x": 242.06362854686157,
@@ -23,11 +23,11 @@
                       "Entity": "analytics purchasing_document"
                     }
                   },
-                  "Property": "On-Time Delivery %"
+                  "Property": "OTD %"
                 }
               },
-              "queryRef": "analytics purchasing_document.On-Time Delivery %",
-              "nativeQueryRef": "On-Time Delivery %"
+              "queryRef": "analytics purchasing_document.OTD %",
+              "nativeQueryRef": "OTD %"
             }
           ]
         }
@@ -42,7 +42,7 @@
                     "Entity": "analytics purchasing_document"
                   }
                 },
-                "Property": "On-Time Delivery %"
+                "Property": "OTD %"
               }
             },
             "direction": "Descending"
@@ -71,7 +71,14 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "35D"
+                  "Value": "25D"
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'''Segoe UI'', wf_segoe-ui_normal, helvetica, arial, sans-serif'"
                 }
               }
             }
