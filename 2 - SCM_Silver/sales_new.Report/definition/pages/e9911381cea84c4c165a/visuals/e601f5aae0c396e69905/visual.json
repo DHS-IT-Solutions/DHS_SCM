@@ -1,0 +1,117 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
+  "name": "e601f5aae0c396e69905",
+  "position": {
+    "x": 619.40298507462683,
+    "y": 530.78358208955217,
+    "z": 47000,
+    "height": 196.82835820895522,
+    "width": 711.75373134328356,
+    "tabOrder": 47000
+  },
+  "visual": {
+    "visualType": "columnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Date Table"
+                    }
+                  },
+                  "Property": "Month"
+                }
+              },
+              "queryRef": "Date Table.Month",
+              "nativeQueryRef": "Month",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "analytics purchasing_document"
+                    }
+                  },
+                  "Property": "Price Variance %"
+                }
+              },
+              "queryRef": "analytics purchasing_document.Price Variance %",
+              "nativeQueryRef": "Price Variance %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "analytics purchasing_document"
+                    }
+                  },
+                  "Property": "Avg Price Variance %"
+                }
+              },
+              "queryRef": "analytics purchasing_document.Avg Price Variance %",
+              "nativeQueryRef": "Avg Price Variance %"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "4a5898afb18d169709a4",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Date Table"
+              }
+            },
+            "Property": "Month"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "70c919ef97822d60ca5a",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "analytics purchasing_document"
+              }
+            },
+            "Property": "Price Variance %"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "3c47a85da064701e6ea8",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "analytics purchasing_document"
+              }
+            },
+            "Property": "Avg Price Variance %"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

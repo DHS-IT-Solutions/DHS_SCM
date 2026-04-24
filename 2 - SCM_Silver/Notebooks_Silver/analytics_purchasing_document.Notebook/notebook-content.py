@@ -97,7 +97,7 @@ lips  = spark.table("SCM_Bronze_LH.sap.LIPS").filter("MANDT='100'")
 eipo  = spark.table("SCM_Bronze_LH.sap.EIPO").filter("MANDT='100'")
 rbkp  = spark.table("SCM_Bronze_LH.sap.RBKP").filter("MANDT='100'")
 ekkn  = spark.table("SCM_Bronze_LH.sap.EKKN").filter("MANDT='100'")
-mbew  = spark.table("SCM_Bronze_LH.sap.MBEW").filter("MANDT='100'")
+mbew = spark.table("SCM_Bronze_LH.sap.MBEW_1604").filter("MANDT='100'")
 makt  = spark.table("SCM_Bronze_LH.sap.MAKT").filter("MANDT='100'").filter("SPRAS='E'")
 t001w = spark.table("SCM_Bronze_LH.sap.T001W").filter("MANDT='100'")
 konp  = spark.table("SCM_Bronze_LH.sap.KONP").filter("MANDT='100'")
@@ -265,7 +265,7 @@ mbew_w = Window.partitionBy("MATNR", "BWKEY", "BWTAR") \
 
 mbew_f = (
     mbew
-    .filter(col("LVORM") == "")
+    # .filter(col("LVORM") == "")
     .withColumn("RN", row_number().over(mbew_w))
     .filter(col("RN") == 1)
     .select("MATNR", "BWKEY", "BWTAR", "PEINH", "VERPR", "STPRS", "BKLAS")
@@ -479,8 +479,8 @@ df = (
 
     .join(mbew_f,
           (col("ekpo.MATNR") == col("mbew.MATNR")) &
-          (col("ekpo.WERKS") == col("mbew.BWKEY")) &
-          (col("mbew.BWTAR") == ""),
+          (col("ekpo.WERKS") == col("mbew.BWKEY")),
+      #     (col("mbew.BWTAR") == ""),
           "left")
 
     .join(t001w_a,
@@ -570,6 +570,7 @@ final_df = df.select(
     col("ekpo.MENGE").cast(DecimalType(15, 2)).alias("Ordered"),
     # col("ekbe.MENGE").cast(DecimalType(15, 2)).alias("Delivered_quantity"),
     col("ekbe_gr.GR_MENGE").cast(DecimalType(15, 2)).alias("Delivered_quantity"),
+    # col("eket.WEMNG").cast(DecimalType(15, 2)).alias("Delivered_quantity"),
     
 
     safe_div(col("eket.MENGE") * col("ekpo.UMREZ"), col("ekpo.UMREN"))
@@ -689,17 +690,6 @@ final_df.count()
 
 # CELL ********************
 
-display(final_df)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
 for c in final_df.columns:
     clean_name = c.strip().replace(" ", "_")
     final_df = final_df.withColumnRenamed(c, clean_name)
@@ -728,17 +718,6 @@ final_df = final_df.withColumnRenamed(
     "((((STPRS_/_CASE_WHEN_(PEINH_=_0)_THEN_NULL_ELSE_PEINH_END)_-_(((coalesce(KBETR,_0)_/_10.0)_*_(NETPR_/_CASE_WHEN_((PEINH_*_UMREZ)_=_0)_THEN_NULL_ELSE_(PEINH_*_UMREZ)_END))_/_100))_-_(((coalesce(KBETR,_0)_/_10.0)_*_(NETPR_/_CASE_WHEN_((PEINH_*_UMREZ)_=_0)_THEN_NULL_ELSE_(PEINH_*_UMREZ)_END))_/_100))_*_((MENGE_*_UMREZ)_/_CASE_WHEN_(UMREN_=_0)_THEN_NULL_ELSE_UMREN_END)_AS_`Net_STD_x_QTY_LC`)",
     "Net_STD_QTY_LC"
 )
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-display(final_df)
 
 # METADATA ********************
 

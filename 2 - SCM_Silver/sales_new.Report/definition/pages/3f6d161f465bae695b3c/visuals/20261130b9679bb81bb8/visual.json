@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
   "name": "20261130b9679bb81bb8",
   "position": {
     "x": 0,
-    "y": 390,
+    "y": 182.19533275713053,
     "z": 14000,
-    "height": 40,
-    "width": 148,
+    "height": 39.965427830596369,
+    "width": 131.65082108902334,
     "tabOrder": 16000
   },
   "visual": {
@@ -79,7 +79,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Marketing'"
+                  "Value": "'Supply'"
                 }
               }
             },
@@ -112,6 +112,35 @@
           },
           "selector": {
             "id": "default"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualLink": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'PageNavigation'"
+                }
+              }
+            },
+            "navigationSection": {
+              "expr": {
+                "Literal": {
+                  "Value": "'e9911381cea84c4c165a'"
+                }
+              }
+            }
           }
         }
       ]

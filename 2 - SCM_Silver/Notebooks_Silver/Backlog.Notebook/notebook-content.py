@@ -208,6 +208,7 @@ billing_link = (
     .withColumnRenamed("VBELN", "BIL_VBELN")
     .withColumnRenamed("ERDAT", "BIL_ERDAT")
     .withColumnRenamed("ERZET", "BIL_ERZET")
+    .withColumnRenamed("RFMNG", "BIL_RFMNG")
 )
 
 # =========================================================
@@ -390,14 +391,14 @@ backlog = base.select(
     F.coalesce(F.col("VBEP.EDATU"), F.col("VBAK.VDATU")).alias("CNFDT"),
 
     # -----------------------------------------------------
-    # PODAT generated from delivery date / billing created / schedule / requested
-    # -----------------------------------------------------
-    F.coalesce(
-        F.col("LIKP.LFDAT"),
-        F.col("VBRK.ERDAT"),
-        F.col("VBEP.EDATU"),
-        F.col("VBAK.VDATU")
-    ).alias("PODAT"),
+# PODAT generated from delivery date / billing created / schedule / requested
+# -----------------------------------------------------
+F.coalesce(
+    F.col("LIKP.LFDAT"),
+    pick_col(vbrk_min, "VBRK", "ERDAT", None),
+    F.col("VBEP.EDATU"),
+    F.col("VBAK.VDATU")
+).alias("PODAT"),
 
     # -----------------------------------------------------
     # GRDAT generated from delivery GI date / delivery date / schedule
@@ -479,16 +480,17 @@ backlog = base.select(
     F.lit(0).cast("decimal(15,2)").alias("IRQNT"),
     F.lit(0).cast("decimal(15,2)").alias("VLQNT"),
     F.lit(0).cast("decimal(15,2)").alias("GIQNT"),
-    F.lit(0).cast("decimal(15,2)").alias("VFQNT"),
+    pick_col(vbap, "VBAP", "KWMENG", 0, "decimal(15,2)").alias("VFQNT"),
     pick_col(vbap, "VBAP", "NETWR", 0, "decimal(18,2)").alias("VBVAL"),
     F.lit(0).cast("decimal(18,2)").alias("VBDSC"),
     F.lit(0).cast("decimal(18,2)").alias("VBCST")
 
 )
+
 # Save to Silver Lakehouse
-backlog.write.format("delta") \
-    .mode("overwrite") \
-    .saveAsTable("SCM_Bronze_LH.sap.backlog")
+#backlog.write.format("delta") \
+ #   .mode("overwrite") \
+  #  .saveAsTable("SCM_Bronze_LH.sap.backlog")
 # =========================================================
 # VIEW RESULT
 # =========================================================

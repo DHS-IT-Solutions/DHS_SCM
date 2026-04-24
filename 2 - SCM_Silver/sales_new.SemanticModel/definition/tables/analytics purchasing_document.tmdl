@@ -174,13 +174,13 @@ table 'analytics purchasing_document'
 
 	measure 'Quantity Score %' =
 			
-			MIN(
-			    DIVIDE(
+			DIVIDE(
+			    MIN(
 			        SUM('analytics purchasing_document'[Delivered_quantity]),
-			        SUM('analytics purchasing_document'[Ordered]),
-			        0
+			        SUM('analytics purchasing_document'[Ordered])
 			    ),
-			    1
+			    SUM('analytics purchasing_document'[Ordered]),
+			    0
 			)
 		formatString: 0%;-0%;0%
 		lineageTag: 68b7d089-a288-4828-bdcf-e9b2eedcd1d4
@@ -298,24 +298,38 @@ table 'analytics purchasing_document'
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	measure 'Price Variance %' =
+	measure 'Price Variance %' = ```
+			
 			
 			AVERAGEX(
+			
 			    FILTER(
-			        ALL('analytics purchasing_document'),
+			
+			        'analytics purchasing_document',
+			
 			        NOT(ISBLANK('analytics purchasing_document'[Net_Price])) &&
+			
 			        NOT(ISBLANK('analytics purchasing_document'[Standard_price])) &&
+			
 			        'analytics purchasing_document'[Standard_price] <> 0
+			
 			    ),
+			
 			    DIVIDE(
+			
 			        'analytics purchasing_document'[Net_Price] - 'analytics purchasing_document'[Standard_price],
+			
 			        'analytics purchasing_document'[Standard_price],
+			
 			        0
+			
 			    )
+			
 			)
+			 
+			```
+		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: b6b6c7cc-42bf-4429-8a01-6a99a50d15c9
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'Price Score' =
 			
@@ -381,6 +395,27 @@ table 'analytics purchasing_document'
 			)
 		formatString: 0
 		lineageTag: 48dfe841-7d33-43ac-9ae9-7ec4747a328a
+
+	measure 'Total Spent' =
+			
+			SUMX(
+			    'analytics purchasing_document',
+			    'analytics purchasing_document'[Net_Price] *
+			    'analytics purchasing_document'[Delivered_quantity]
+			)
+		lineageTag: d56e44dd-77f9-4a9a-84d7-2ab9dd0f9850
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Price Variance %' =
+			
+			AVERAGEX(
+			    ALL('Date Table'[Month]),
+			    [Price Variance %]
+			)
+		lineageTag: cef918d5-ad1f-4001-88fc-968eb59e8de8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'Purch._Organization'
 		dataType: string

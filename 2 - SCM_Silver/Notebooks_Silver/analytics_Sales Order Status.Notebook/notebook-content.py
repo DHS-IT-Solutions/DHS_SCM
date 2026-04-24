@@ -52,7 +52,8 @@ def tbl(name):
 # Source tables — all pointing to SCM_Bronze_LH
 # vbak filtered to VBELN starting with "206"
 # =========================================================
-vbak          = spark.table(tbl("vbak")).filter(F.col("VBELN").startswith("0206"))
+#vbak          = spark.table(tbl("vbak")).filter(F.col("VBELN").startswith("0206"))
+vbak = spark.table(tbl("vbak"))
 vbap          = spark.table(tbl("vbap"))
 kna1          = spark.table(tbl("kna1"))
 vbkd          = spark.table(tbl("vbkd"))
@@ -151,34 +152,7 @@ def rand_time():
 def rand_date_after(anchor_col, max_days=14):
     return F.date_add(anchor_col, (F.rand() * (max_days - 1) + 1).cast("int"))
 
-# =========================================================
-# Dummy lookup lists
-# =========================================================
-AUGRU_CODES = ["001","002","004","005","006","007","008","100","101","102","103","104","105"]
-AUGRU_TEXTS = ["Sales call","Trade fair sales activity","Customer recommendation",
-               "Newspaper advertisement","Excellent price","Fast delivery","Good service",
-               "Price difference: price was too high","Poor quality","Damaged in transit",
-               "Quantity discrepancy","Material ruined","Free of charge sample"]
-PLTYP_CODES = ["01","02","31","32","S1","S2"]
-PLTYP_TEXTS = ["Wholesale","Retail","BGL 91 lower value","BGL 91 upper value",
-               "Price List Type 1","Price List Type 2"]
-FAKSP_CODES = ["01","03","04","08"]
-FAKSP_TEXTS = ["Calculation Missing","Prices Incomplete","Check Terms of Paymt","Check Credit Memo"]
-LIFSK_CODES = ["01","02","05","07"]
-LIFSK_TEXTS = ["Credit limit","Political reasons","Check free of ch.dlv","Change in quantity"]
-PERNR_LIST  = [
-    "ZI62620000000002000010","ZI62620000000034000010","ZI62620000000078000010",
-    "ZI62620000000080000010","ZI62620000000084000010","ZI62620000000128000010",
-    "ZI62620000000133000010","ZI62620000000140000020","ZI62620000000186000010",
-    "ZI62620000000199000010","ZI62620000000218000010","ZI62620000000223000010",
-    "ZI62620000000225000010","ZI62620000000239000010","ZI62620000000240000010",
-    "ZI62620000000241000010","ZI62620000000254000010","ZI62620000000255000010",
-    "ZI62620000000256000010",
-]
-KIT_MATNR_LIST = ["KIT-001","KIT-002","KIT-003","KIT-004","KIT-005",
-                  "KIT-006","KIT-007","KIT-008","KIT-009","KIT-010"]
-BOL_LIST = ([f"BOL-2024{str(i).zfill(4)}" for i in range(1, 50)] +
-            [f"BOL-2025{str(i).zfill(4)}" for i in range(1, 50)])
+
 
 # =========================================================
 # Prep
@@ -495,66 +469,57 @@ result = (
         col_or_null(df_alias_map, "ADRCT.POST_CODE1").alias("Postal Code"),
         col_or_null(df_alias_map, "ADRCT.CITY1").alias("City"),
         col_or_null(df_alias_map, "VBAK.BSTNK").alias("Cust ref no"),
-        F.coalesce(
-            sap_to_date_nullable("VBKD.BSTKD", df_alias_map),
-            rand_date_after(F.col("_CREATED_ON"), 10)
-        ).alias("Customer ref date"),
-        sap_to_date("VBAK.VDATU", df_alias_map).alias("Request dlv dt"),
-        col_or_null(df_alias_map, "BACKLOG.WWLNE").alias("Product Line"),
-        col_or_null(df_alias_map, "BACKLOG.SPART").alias("Product group"),
-        F.when(col_or_null(df_alias_map, "VBAP.MATNR", "string").like("000%"),
-               trim_zeros("VBAP.MATNR", df_alias_map))
-         .otherwise(col_or_null(df_alias_map, "VBAP.MATNR")).alias("Material"),
-        col_or_null(df_alias_map, "MAKT.MAKTX").alias("Material Description"),
-        F.when(col_or_null(df_alias_map, "VBAP.MATWA", "string").like("000%"),
-               trim_zeros("VBAP.MATWA", df_alias_map))
-         .otherwise(col_or_null(df_alias_map, "VBAP.MATWA")).alias("Material entered"),
-        F.when(col_or_null(df_alias_map, "BACKLOG.ICTYP", "string") == "R",
-               col_or_null(df_alias_map, "VBAP.KWMENG", "double").cast("decimal(15,2)") * -1)
-         .otherwise(col_or_null(df_alias_map, "VBAP.KWMENG", "double").cast("decimal(15,2)"))
-         .alias("Order quantity"),
-        F.when(col_or_null(df_alias_map, "BACKLOG.ICTYP", "string") == "R",
-               col_or_null(df_alias_map, "VBAK.NETWR", "double").cast("decimal(18,2)") * -1)
-         .otherwise(col_or_null(df_alias_map, "VBAK.NETWR", "double").cast("decimal(18,2)"))
-         .alias("Net value document"),
-        col_or_null(df_alias_map, "VBAK.WAERK").alias("Doc Currency document"),
-        F.when(F.trim(F.col("VBAK.AUART")).isin("ZDRE", "ZDRN"), F.lit("X"))
-         .otherwise(F.lit(None)).alias("RETURNED PO"),
-        F.coalesce(
+                F.coalesce(
             F.when(F.col("VBAK.LIFSK_NORM").isNotNull(), F.lit("B")),
-            F.when(col_or_null(df_alias_map, "BACKLOG.VLQNT", "double") > 0,
-                   F.when(col_or_null(df_alias_map, "BACKLOG.VBQNT", "double") >
-                          col_or_null(df_alias_map, "BACKLOG.VLQNT", "double"),
-                          F.lit("P")).otherwise(F.lit("X"))),
-            F.when(F.abs(F.hash(seed)) % 10 < 7, F.lit("X"))
-             .when(F.abs(F.hash(seed)) % 10 < 9, F.lit("P"))
-             .otherwise(F.lit(None))
+            F.when(
+                col_or_null(df_alias_map, "VBAP.KWMENG", "double") > 0,
+                F.when(
+                    col_or_null(df_alias_map, "BACKLOG.VBQNT", "double") >
+                    col_or_null(df_alias_map, "VBAP.KWMENG", "double"),
+                    F.lit("P")
+                ).otherwise(F.lit("X"))
+            ),
+            F.when(F.abs(F.hash(seed)) % 10 < 7, F.lit("X")),
+            F.when(F.abs(F.hash(seed)) % 10 < 9, F.lit("P")),
+            F.lit(None)
         ).alias("Delivered"),
+
         F.coalesce(
             F.when(F.col("VBAK.FAKSK_NORM").isNotNull(), F.lit("B")),
-            F.when(col_or_null(df_alias_map, "BACKLOG.VFQNT", "double") > 0,
-                   F.when(col_or_null(df_alias_map, "BACKLOG.VBQNT", "double") >
-                          col_or_null(df_alias_map, "BACKLOG.VFQNT", "double"),
-                          F.lit("P")).otherwise(F.lit("X"))),
-            F.when(F.abs(F.hash(seed)) % 10 < 7, F.lit("X"))
-             .when(F.abs(F.hash(seed)) % 10 < 9, F.lit("P"))
-             .otherwise(F.lit(None))
+            F.when(
+                col_or_null(df_alias_map, "VBAP.KWMENG", "double") > 0,
+                F.when(
+                    col_or_null(df_alias_map, "BACKLOG.VBQNT", "double") >
+                    col_or_null(df_alias_map, "VBAP.KWMENG", "double"),
+                    F.lit("P")
+                ).otherwise(F.lit("X"))
+            ),
+            F.when(F.abs(F.hash(seed)) % 10 < 7, F.lit("X")),
+            F.when(F.abs(F.hash(seed)) % 10 < 9, F.lit("P")),
+            F.lit(None)
         ).alias("Issued"),
+
         trim_zeros("VBFA_BILLING.VBELN", df_alias_map).alias("Purchasing Document"),
+
         F.when(F.col("_POSNN_TRIMMED").isNull(), F.lit(None).cast("string"))
          .otherwise(F.expr("substring(_POSNN_TRIMMED, greatest(length(_POSNN_TRIMMED)-4,1), 5)"))
          .alias("Purchasing Document Item"),
+
         trim_zeros("VBFA_DELIVERY.VBELN", df_alias_map).alias("Outbound Delivery"),
+
         F.coalesce(
             col_or_null(df_alias_map, "PA0001.PERNR"),
             rand_pick(seed, PERNR_LIST)
         ).alias("Item sales rep no"),
+
         F.coalesce(
             col_or_null(df_alias_map, "PA0001.ENAME"),
             rand_pick(seed, PERNR_LIST)
         ).alias("Item sales rep name"),
+
         col_or_null(df_alias_map, "BACKLOG.VLQNT", "double").cast("decimal(15,2)").alias("Delivered quantity"),
-        col_or_null(df_alias_map, "BACKLOG.VFQNT", "double").cast("decimal(15,2)").alias("Billed quantity"),
+        col_or_null(df_alias_map, "VBAP.KWMENG", "double").cast("decimal(15,2)").alias("Billed quantity"),
+        col_or_null(df_alias_map, "VBAP.KWMENG", "double").cast("decimal(15,2)").alias("Order quantity"),
         F.when(col_or_null(df_alias_map, "BACKLOG.ICTYP", "string") == "R",
                col_or_null(df_alias_map, "VBAP.KLMENG", "double").cast("decimal(15,2)") * -1)
          .otherwise(col_or_null(df_alias_map, "VBAP.KLMENG", "double").cast("decimal(15,2)"))

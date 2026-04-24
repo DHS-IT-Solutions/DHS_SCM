@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
   "name": "3f0234fbd3db80503978",
   "position": {
     "x": 0,
-    "y": 629,
+    "y": 511.32238547968888,
     "z": 17000,
-    "height": 39,
-    "width": 167,
+    "height": 38.789974070872951,
+    "width": 106.96629213483146,
     "tabOrder": 18000
   },
   "visual": {
@@ -72,7 +72,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Productivity'"
+                  "Value": "'Risk'"
                 }
               }
             },
