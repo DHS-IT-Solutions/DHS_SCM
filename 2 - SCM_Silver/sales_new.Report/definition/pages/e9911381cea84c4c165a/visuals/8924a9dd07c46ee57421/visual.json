@@ -4,10 +4,10 @@
   "position": {
     "x": 968.75107665805342,
     "y": 202.65288544358313,
-    "z": 32000,
+    "z": 21000,
     "height": 38.656330749354005,
     "width": 78.484065460809646,
-    "tabOrder": 32000
+    "tabOrder": 21000
   },
   "visual": {
     "visualType": "card",
@@ -23,11 +23,11 @@
                       "Entity": "analytics purchasing_document"
                     }
                   },
-                  "Property": "Quantity Score % Last Month"
+                  "Property": "Quantity Score % Current Month"
                 }
               },
-              "queryRef": "analytics purchasing_document.Quantity Score % Last Month",
-              "nativeQueryRef": "Quantity Score % Last Month"
+              "queryRef": "analytics purchasing_document.Quantity Score % Current Month",
+              "nativeQueryRef": "Quantity Score % Current Month"
             }
           ]
         }
@@ -42,7 +42,7 @@
                     "Entity": "analytics purchasing_document"
                   }
                 },
-                "Property": "Quantity Score % Last Month"
+                "Property": "Quantity Score % Current Month"
               }
             },
             "direction": "Descending"

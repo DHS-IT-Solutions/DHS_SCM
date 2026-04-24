@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
   "name": "b5190ad0038ce24db2bd",
   "position": {
-    "x": 238.46153846153845,
-    "y": 257.69230769230768,
-    "z": 33000,
-    "height": 221.15384615384616,
-    "width": 715.38461538461536,
-    "tabOrder": 32000
+    "x": 238.88888888888889,
+    "y": 257.77777777777777,
+    "z": 23000,
+    "height": 221.11111111111111,
+    "width": 714.44444444444446,
+    "tabOrder": 22000
   },
   "visual": {
     "visualType": "barChart",

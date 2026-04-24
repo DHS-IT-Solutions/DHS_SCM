@@ -3,10 +3,10 @@
   "name": "99272bd1b5c41d10fbc8",
   "position": {
     "x": 0,
-    "y": 114.019014693172,
+    "y": 145.55555555555554,
     "z": 18000,
-    "height": 38.789974070872951,
-    "width": 151.63353500432152,
+    "height": 48.888888888888886,
+    "width": 198.88888888888889,
     "tabOrder": 20000
   },
   "visual": {
@@ -76,13 +76,6 @@
                 }
               }
             },
-            "fontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "15D"
-                }
-              }
-            },
             "fontColor": {
               "solid": {
                 "color": {
@@ -99,6 +92,13 @@
               "expr": {
                 "Literal": {
                   "Value": "true"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "20D"
                 }
               }
             }

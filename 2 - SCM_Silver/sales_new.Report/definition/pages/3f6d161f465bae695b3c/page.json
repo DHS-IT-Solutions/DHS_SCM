@@ -2,9 +2,9 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
   "name": "3f6d161f465bae695b3c",
   "displayName": "Sales Overview",
-  "displayOption": "FitToPage",
-  "height": 750,
-  "width": 1360,
+  "displayOption": "ActualSize",
+  "height": 950,
+  "width": 1400,
   "objects": {
     "background": [
       {

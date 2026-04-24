@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
   "name": "42585d3e6062709406b7",
   "position": {
-    "x": 242.53731343283582,
-    "y": 534.51492537313425,
-    "z": 43000,
-    "height": 188.43283582089552,
-    "width": 350.74626865671638,
-    "tabOrder": 43000
+    "x": 206.66666666666666,
+    "y": 531.11111111111109,
+    "z": 32000,
+    "height": 176.66666666666666,
+    "width": 432.22222222222223,
+    "tabOrder": 32000
   },
   "visual": {
     "visualType": "lineChart",
@@ -78,6 +78,20 @@
               "expr": {
                 "Literal": {
                   "Value": "'dotted'"
+                }
+              }
+            },
+            "titleText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Avg Lead Time %'"
+                }
+              }
+            },
+            "showAxisTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

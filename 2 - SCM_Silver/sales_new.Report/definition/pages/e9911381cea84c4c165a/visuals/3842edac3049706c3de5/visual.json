@@ -4,10 +4,10 @@
   "position": {
     "x": 1061.2919896640826,
     "y": 121.8260120585702,
-    "z": 33000,
+    "z": 22000,
     "height": 91.36950904392765,
     "width": 176.88199827734712,
-    "tabOrder": 33000
+    "tabOrder": 22000
   },
   "visual": {
     "visualType": "card",
@@ -120,7 +120,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Vendore Score'"
+                  "Value": "'Vendor Score'"
                 }
               }
             },

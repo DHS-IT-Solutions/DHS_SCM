@@ -12,17 +12,21 @@ table 'analytics purchasing_document'
 
 	measure 'Avg Lead Time (Days)' =
 			
-			AVERAGEX(
-			    FILTER(
-			        'analytics purchasing_document',
-			        NOT(ISBLANK('analytics purchasing_document'[Created_on] )) &&
-			        NOT(ISBLANK('analytics purchasing_document'[GR_date]))
+			COALESCE(
+			    AVERAGEX(
+			        SUMMARIZE(
+			            FILTER(
+			                'analytics purchasing_document',
+			                NOT(ISBLANK('analytics purchasing_document'[Created_on])) &&
+			                NOT(ISBLANK('analytics purchasing_document'[GR_date]))
+			            ),
+			            'analytics purchasing_document'[GR_date],
+			            "Min_Created_on", MIN('analytics purchasing_document'[Created_on]),
+			            "Min_GR_date", MIN('analytics purchasing_document'[GR_date])
+			        ),
+			        DATEDIFF([Min_Created_on], [Min_GR_date], DAY)
 			    ),
-			    DATEDIFF(
-			        'analytics purchasing_document'[Created_on],
-			        'analytics purchasing_document'[GR_date],
-			        DAY
-			    )
+			    0
 			)
 		formatString: 0
 		lineageTag: 1892e2df-e960-4512-93f5-8513f81d74c2
@@ -80,7 +84,7 @@ table 'analytics purchasing_document'
 			        'analytics purchasing_document',
 			        NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
 			        NOT(ISBLANK('analytics purchasing_document'[Delivery_Date])) &&
-			        'analytics purchasing_document'[GR_date] <= 'analytics purchasing_document'[Delivery_Date] + 2
+			        'analytics purchasing_document'[GR_date] <= 'analytics purchasing_document'[Delivery_Date]
 			    )
 			)
 		formatString: 0
@@ -89,7 +93,7 @@ table 'analytics purchasing_document'
 	measure 'OTD %' =
 			
 			DIVIDE([On-Time Deliveries], [Total Deliveries], 0)
-		formatString: 0.00%;-0.00%;0.00%
+		formatString: 0%;-0%;0%
 		lineageTag: 944f0f29-2991-4698-ab4c-399e39ead4fc
 
 	measure 'OTD % Last Month' =
@@ -152,8 +156,8 @@ table 'analytics purchasing_document'
 			            NOT(ISBLANK('analytics purchasing_document'[Delivery_Date])) &&
 			            'analytics purchasing_document'[GR_date] >= CurrentMonthStart &&
 			            'analytics purchasing_document'[GR_date] < NextMonthStart &&
-			            'analytics purchasing_document'[GR_date] <= 
-			                'analytics purchasing_document'[Delivery_Date] + 2
+			            'analytics purchasing_document'[GR_date] <=
+			                'analytics purchasing_document'[Delivery_Date] 
 			        )
 			    ),
 			    CALCULATE(
@@ -300,31 +304,24 @@ table 'analytics purchasing_document'
 
 	measure 'Price Variance %' = ```
 			
-			
-			AVERAGEX(
-			
+			VAR ValidRows =
 			    FILTER(
-			
 			        'analytics purchasing_document',
-			
-			        NOT(ISBLANK('analytics purchasing_document'[Net_Price])) &&
-			
-			        NOT(ISBLANK('analytics purchasing_document'[Standard_price])) &&
-			
+			        NOT ISBLANK('analytics purchasing_document'[Net_Price]) &&
+			        NOT ISBLANK('analytics purchasing_document'[Standard_price]) &&
 			        'analytics purchasing_document'[Standard_price] <> 0
-			
-			    ),
-			
-			    DIVIDE(
-			
-			        'analytics purchasing_document'[Net_Price] - 'analytics purchasing_document'[Standard_price],
-			
-			        'analytics purchasing_document'[Standard_price],
-			
-			        0
-			
 			    )
-			
+			RETURN
+			DIVIDE(
+			    SUMX(
+			        ValidRows,
+			        'analytics purchasing_document'[Net_Price] - 'analytics purchasing_document'[Standard_price]
+			    ),
+			    SUMX(
+			        ValidRows,
+			        'analytics purchasing_document'[Standard_price]
+			    ),
+			    0
 			)
 			 
 			```
@@ -378,18 +375,19 @@ table 'analytics purchasing_document'
 			RETURN
 			COALESCE(
 			    AVERAGEX(
-			        FILTER(
-			            ALL('analytics purchasing_document'),
-			            NOT(ISBLANK('analytics purchasing_document'[Created_on])) &&
-			            NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
-			            'analytics purchasing_document'[GR_date] >= CurrentMonthStart &&
-			            'analytics purchasing_document'[GR_date] < NextMonthStart
-			        ),
-			        DATEDIFF(
-			            'analytics purchasing_document'[Created_on],
+			        SUMMARIZE(
+			            FILTER(
+			                ALL('analytics purchasing_document'),
+			                NOT(ISBLANK('analytics purchasing_document'[Created_on])) &&
+			                NOT(ISBLANK('analytics purchasing_document'[GR_date])) &&
+			                'analytics purchasing_document'[GR_date] >= CurrentMonthStart &&
+			                'analytics purchasing_document'[GR_date] < NextMonthStart
+			            ),
 			            'analytics purchasing_document'[GR_date],
-			            DAY
-			        )
+			            "Min_Created_on", MIN('analytics purchasing_document'[Created_on]),
+			            "Min_GR_date", MIN('analytics purchasing_document'[GR_date])
+			        ),
+			        DATEDIFF([Min_Created_on], [Min_GR_date], DAY)
 			    ),
 			    0
 			)
@@ -413,7 +411,13 @@ table 'analytics purchasing_document'
 			    ALL('Date Table'[Month]),
 			    [Price Variance %]
 			)
+		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: cef918d5-ad1f-4001-88fc-968eb59e8de8
+
+	measure 'Total Net Price' =
+			
+			SUM('analytics purchasing_document'[Net_Price])
+		lineageTag: e19187f1-57f4-42c9-bdc8-a09b6dae5506
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 

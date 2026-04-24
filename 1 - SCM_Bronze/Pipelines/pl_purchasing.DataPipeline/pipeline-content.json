@@ -268,8 +268,8 @@
                 "properties": {
                   "type": "Lakehouse",
                   "typeProperties": {
-                    "artifactId": "67c1ab39-7d32-afb6-49f6-afd1f8eb1159",
-                    "workspaceId": "00000000-0000-0000-0000-000000000000",
+                    "artifactId": "f8eb1159-afd1-49f6-afb6-7d3267c1ab39",
+                    "workspaceId": "f6eefe30-09e0-42fd-b87d-b4b372c2de7a",
                     "rootFolder": "Tables"
                   },
                   "annotations": []
@@ -296,6 +296,8 @@
           "secureOutput": false
         },
         "name": "EKET",
+        "state": "Inactive",
+        "onInactiveMarkAs": "Succeeded",
         "dependsOn": []
       },
       {
